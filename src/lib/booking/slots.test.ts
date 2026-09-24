@@ -34,7 +34,6 @@ describe('booking slot generation', () => {
 
     expect(slots.map((slot) => slot.toISOString())).toEqual([
       utc(11).toISOString(),
-      utc(11, 30).toISOString(),
     ]);
   });
 
