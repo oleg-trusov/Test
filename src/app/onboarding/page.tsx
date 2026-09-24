@@ -1,6 +1,24 @@
+import { redirect } from 'next/navigation';
+import { OnboardingForm } from './onboarding-form';
+import { createClient } from '@/lib/supabase/server';
+
 const steps = ['Business', 'Location', 'Hours', 'First service', 'First staff member'];
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  const { data: existing } = await supabase
+    .from('business_members')
+    .select('business_id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .limit(1);
+
+  if (existing?.length) redirect('/dashboard');
+
   return (
     <main className="min-h-screen px-5 py-8">
       <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[300px_1fr]">
@@ -17,17 +35,7 @@ export default function OnboardingPage() {
           </ol>
         </aside>
         <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-7 md:p-10">
-          <p className="text-sm font-semibold text-[var(--primary)]">Step 1 of 5</p>
-          <h2 className="mt-3 text-3xl font-semibold">Tell us about your salon</h2>
-          <p className="mt-2 text-[var(--muted)]">The database transaction for this wizard is defined in the Foundation migration.</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {['Business name', 'Business type', 'Country', 'City', 'Phone', 'Timezone'].map((field) => (
-              <label key={field} className="text-sm font-medium">
-                {field}
-                <input disabled className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--muted)]" placeholder="Foundation wiring in progress" />
-              </label>
-            ))}
-          </div>
+          <OnboardingForm />
         </div>
       </section>
     </main>
