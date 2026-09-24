@@ -293,7 +293,7 @@ create table public.appointment_services (
   buffer_after_snapshot integer not null default 0,
   sort_order integer not null default 0,
   foreign key (business_id, appointment_id) references public.appointments(business_id, id) on delete cascade,
-  foreign key (business_id, service_id) references public.services(business_id, id) on delete set null
+  foreign key (business_id, service_id) references public.services(business_id, id) on delete restrict
 );
 
 create table public.appointment_status_history (
